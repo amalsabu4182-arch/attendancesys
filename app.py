@@ -615,17 +615,28 @@ STUDENT_DASHBOARD = BASE_TEMPLATE.replace('{% block content %}{% endblock %}', '
 ''')
 
 # ================= INITIALIZATION =================
+# ================= DATABASE INITIALIZATION =================
 def init_db():
     with app.app_context():
+        # Create tables
         db.create_all()
+        
         # Create Admin if not exists
         if not User.query.filter_by(username='admin').first():
-            hashed = generate_password_hash('admin123')
-            db.session.add(User(username='admin', password=hashed, role='admin'))
-            db.session.commit()
-            print(">>> DATABASE INITIALIZED. Admin: admin/admin123")
+            try:
+                hashed = generate_password_hash('admin123')
+                # Ensure this matches your User model columns
+                admin = User(username='admin', password=hashed, role='admin')
+                db.session.add(admin)
+                db.session.commit()
+                print(">>> DATABASE INITIALIZED. Admin: admin/admin123")
+            except Exception as e:
+                print(f"Error creating admin: {e}")
 
+# CRITICAL: Call this function globally so it runs on Render deployment
+init_db()
+
+# ================= RUN LOCAL =================
 if __name__ == '__main__':
-    init_db()
-    # Running on Port 5001 as requested
+    # This block is only for when you run 'python app.py' on your PC
     app.run(debug=True, port=5001)
