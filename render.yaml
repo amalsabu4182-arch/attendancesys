@@ -3,3 +3,13 @@ services:
     name: attendance-system
     env: python
     pythonVersion: 3.11
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app --workers 2 --threads 4 --timeout 120 --bind 0.0.0.0:$PORT"
+    plan: free
+    region: oregon
+    autoDeploy: true
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_ENV
+        value: production
